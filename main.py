@@ -1,3 +1,8 @@
+from rich.traceback import install
+
+install()
+
+
 def main():
     print("Hello from my-minimind!")
 
