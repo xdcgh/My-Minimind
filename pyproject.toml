@@ -8,7 +8,6 @@ dependencies = [
     "numpy>=2.4.4",
     "pandas>=3.0.2",
     "rich>=15.0.0",
-    "torch>=2.11.0",
     "transformers>=5.7.0",
 ]
 
@@ -24,4 +23,10 @@ ignore = []
 [dependency-groups]
 dev = [
     "ruff>=0.15.12",
+]
+torch = [
+    "torch>=2.11.0",
+]
+mlx = [
+    "mlx",
 ]

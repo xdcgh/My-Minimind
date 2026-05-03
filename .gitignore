@@ -1,2 +1,4 @@
 external/minimind/
 external/MokioMind/
+__pycache__/
+*.py[cod]
