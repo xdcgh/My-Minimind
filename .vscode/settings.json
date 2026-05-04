@@ -1,0 +1,26 @@
+{
+  "python.analysis.exclude": [
+    "**/node_modules/**",
+    "**/__pycache__/**",
+    "**/.*",
+    "external/minimind",
+    "external/MokioMind", 
+    ".venv"
+  ],
+  "python.analysis.ignore": [
+    "external/minimind",
+    "external/MokioMind"
+  ],
+  "ruff.exclude": [
+    "external/minimind",
+    "external/MokioMind"
+  ],
+  "search.exclude": {
+    "**/external/minimind/**": true,
+    "**/external/MokioMind/**": true
+  },
+  "files.watcherExclude": {
+    "**/external/minimind/**": true,
+    "**/external/MokioMind/**": true
+  }
+}
