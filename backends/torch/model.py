@@ -23,7 +23,9 @@ class RMSNorm(nn.Module):
 
 
 def precompute_freqs(dim: int, end: int, rope_base: float = 1e6, rope_scaling: dict | None = None):
-    freqs, attn_factor = (1.0 / (rope_base ** (torch.arange(0, dim, 2)[: (dim // 2)] / dim)), 1.0)
+    assert dim % 2 == 0
+
+    freqs, attn_factor = (1.0 / (rope_base ** (torch.arange(0, dim, 2).float() / dim)), 1.0)
 
     if rope_scaling is not None:
         orig_max, factor, beta_fast, beta_slow, attn_factor = (
@@ -31,7 +33,7 @@ def precompute_freqs(dim: int, end: int, rope_base: float = 1e6, rope_scaling: d
             rope_scaling.get("factor", 16),
             rope_scaling.get("beta_fast", 32.0),
             rope_scaling.get("beta_slow", 1.0),
-            rope_scaling.get("attn_factor", 1.0),
+            rope_scaling.get("attention_factor", 1.0),
         )
 
         if end / orig_max > 1.0:
@@ -66,8 +68,15 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
     def rotate_half(x):
         return torch.cat((-x[..., x.shape[-1] // 2 :], x[..., : x.shape[-1] // 2]), dim=-1)
 
-    q_embed = (q * cos.unsqueeze(unsqueeze_dim)) + (rotate_half(q) * sin.unsqueeze(unsqueeze_dim))
-    k_embed = (k * cos.unsqueeze(unsqueeze_dim)) + (rotate_half(k) * sin.unsqueeze(unsqueeze_dim))
+    if position_ids is not None:
+        cos = cos[position_ids]
+        sin = sin[position_ids]
+
+    cos = cos.unsqueeze(unsqueeze_dim)
+    sin = sin.unsqueeze(unsqueeze_dim)
+
+    q_embed = (q * cos + rotate_half(q) * sin).to(q.dtype)
+    k_embed = (k * cos + rotate_half(k) * sin).to(k.dtype)
 
     return q_embed, k_embed
 
