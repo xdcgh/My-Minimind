@@ -25,10 +25,11 @@ class RMSNorm(nn.Module):
 def precompute_freqs(dim: int, end: int, rope_base: float = 1e6, rope_scaling: dict | None = None):
     assert dim % 2 == 0
 
-    freqs, attn_factor = (1.0 / (rope_base ** (torch.arange(0, dim, 2).float() / dim)), 1.0)
+    freqs = 1.0 / (rope_base ** (torch.arange(0, dim, 2).float() / dim))
+    attention_factor = 1.0
 
     if rope_scaling is not None:
-        orig_max, factor, beta_fast, beta_slow, attn_factor = (
+        orig_max, factor, beta_fast, beta_slow, attention_factor = (
             rope_scaling.get("original_max_position_embeddings", 2048),
             rope_scaling.get("factor", 16),
             rope_scaling.get("beta_fast", 32.0),
@@ -58,8 +59,8 @@ def precompute_freqs(dim: int, end: int, rope_base: float = 1e6, rope_scaling: d
     t = torch.arange(end, device=freqs.device)
     freqs = torch.outer(t, freqs).float()
 
-    freqs_cos = torch.cat([torch.cos(freqs), torch.cos(freqs)], dim=-1) * attn_factor
-    freqs_sin = torch.cat([torch.sin(freqs), torch.sin(freqs)], dim=-1) * attn_factor
+    freqs_cos = torch.cat([torch.cos(freqs), torch.cos(freqs)], dim=-1) * attention_factor
+    freqs_sin = torch.cat([torch.sin(freqs), torch.sin(freqs)], dim=-1) * attention_factor
 
     return freqs_cos, freqs_sin
 
